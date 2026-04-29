@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Roofing Pricing App</title>
+<style>
+body { font-family: Arial; padding: 20px; background:#f5f5f5;}
+.container { max-width: 600px; margin:auto; background:white; padding:20px; border-radius:10px;}
+input { width:100%; padding:8px; margin:5px 0;}
+h2 { margin-top:20px;}
+.total { font-size:24px; font-weight:bold; margin-top:20px;}
+</style>
+</head>
+
+<body>
+<div class="container">
+<h1>Roofing Pricing App</h1>
+
+<h2>Inputs</h2>
+<label>Squares</label>
+<input id="sq" type="number" value="30"/>
+
+<label>Shingle Cost per SQ</label>
+<input id="mat" type="number" value="135"/>
+
+<label>Labor per SQ</label>
+<input id="lab" type="number" value="120"/>
+
+<label>Extras (dump, delivery, misc)</label>
+<input id="extra" type="number" value="1000"/>
+
+<label>Markup %</label>
+<input id="markup" type="number" value="67"/>
+
+<h2>Result</h2>
+<div id="result" class="total">$0</div>
+
+</div>
+
+<script>
+function calc(){
+let sq = parseFloat(document.getElementById("sq").value)||0;
+let mat = parseFloat(document.getElementById("mat").value)||0;
+let lab = parseFloat(document.getElementById("lab").value)||0;
+let extra = parseFloat(document.getElementById("extra").value)||0;
+let markup = parseFloat(document.getElementById("markup").value)||0;
+
+let cost = (sq*mat)+(sq*lab)+extra;
+let sell = cost*(1+markup/100);
+
+document.getElementById("result").innerText = "$"+Math.round(sell);
+}
+
+document.querySelectorAll("input").forEach(i=>i.addEventListener("input",calc));
+calc();
+</script>
+
+</body>
+</html>
