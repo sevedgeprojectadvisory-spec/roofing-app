@@ -3,10 +3,10 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Roofing Pricing App V3</title>
+<title>Roofing Pricing App V4</title>
 <style>
 body{font-family:Arial,sans-serif;background:#f4f7f4;margin:0;padding:16px;color:#111}
-.app{max-width:820px;margin:auto;background:#fff;border-radius:18px;padding:18px;box-shadow:0 4px 18px rgba(0,0,0,.08)}
+.app{max-width:860px;margin:auto;background:#fff;border-radius:18px;padding:18px;box-shadow:0 4px 18px rgba(0,0,0,.08)}
 h1{margin:0;color:#123d22}
 .sub{color:#555;margin-top:5px}
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
@@ -15,35 +15,37 @@ input,select{width:100%;padding:10px;border:1px solid #ccc;border-radius:10px;fo
 .card{background:#f8faf8;border:1px solid #dfe8df;border-radius:14px;padding:14px;margin-top:14px}
 .total{background:#123d22;color:white;border-radius:16px;padding:18px;margin-top:18px;text-align:center}
 .total .big{font-size:34px;font-weight:bold}
-.row{display:flex;justify-content:space-between;border-bottom:1px solid #ddd;padding:9px 0;font-size:15px}
+.row{display:flex;justify-content:space-between;border-bottom:1px solid #ddd;padding:9px 0;font-size:15px;gap:12px}
 .row:last-child{border-bottom:none}
 .note{font-size:13px;color:#555;line-height:1.4}
 button{width:100%;padding:14px;margin-top:14px;border:0;border-radius:14px;background:#123d22;color:white;font-size:16px;font-weight:bold}
 .secondary{background:#e8f1e8;color:#123d22;border:1px solid #bfd4bf}
-.green{color:#1f7a3a;font-weight:bold}
-.modebar{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:15px}
 .customerOnly{display:none}
 .customer-mode .internalOnly{display:none!important}
 .customer-mode .customerOnly{display:block}
-.customer-mode .app{box-shadow:none;border-radius:0}
-.signature{margin-top:35px;border-top:1px solid #333;padding-top:10px}
-@media(max-width:650px){.grid,.modebar{grid-template-columns:1fr}}
+.signatureWrap{margin-top:35px}
+.signatureLine{border-bottom:1.5px solid #222;height:34px;width:100%}
+.smallLine{font-size:12px;color:#555;margin-top:6px}
+@media(max-width:650px){.grid{grid-template-columns:1fr}}
 @media print{
   body{background:white;padding:0}
   .app{max-width:none;box-shadow:none;border-radius:0}
-  .internalOnly,.modebar,button{display:none!important}
+  .internalOnly,.noPrint,button{display:none!important}
   .customerOnly{display:block!important}
 }
 </style>
 </head>
 <body>
 <div class="app">
-  <h1>Roofing Pricing App V3</h1>
-  <p class="sub internalOnly">Internal pricing tool with customer-safe PDF view.</p>
 
-  <div class="modebar internalOnly">
-    <button onclick="setMode('internal')">Internal View</button>
-    <button class="secondary" onclick="setMode('customer')">Customer / PDF View</button>
+  <div class="internalOnly">
+    <h1>Roofing Pricing App V4</h1>
+    <p class="sub">Internal pricing tool with customer-safe PDF view.</p>
+    <button onclick="setMode('customer')">Customer / PDF View</button>
+  </div>
+
+  <div class="customerOnly noPrint">
+    <button class="secondary" onclick="setMode('internal')">Back to Internal View</button>
   </div>
 
   <div class="card internalOnly">
@@ -51,13 +53,23 @@ button{width:100%;padding:14px;margin-top:14px;border:0;border-radius:14px;backg
 
     <div class="grid">
       <div>
+        <label>Good / Better / Best</label>
+        <select id="systemChoice">
+          <option value="106">Good – IKO Cambridge ($106/SQ)</option>
+          <option value="116">Better – IKO Dynasty ($116/SQ)</option>
+          <option value="145">Best – IKO Nordic ($145/SQ)</option>
+          <option value="custom">Custom Shingle Cost</option>
+        </select>
+      </div>
+
+      <div>
         <label>Squares</label>
         <input id="squares" type="number" value="30">
       </div>
 
       <div>
         <label>Shingle Cost / SQ</label>
-        <input id="shingleCost" type="number" value="135">
+        <input id="shingleCost" type="number" value="106">
       </div>
 
       <div>
@@ -129,14 +141,6 @@ button{width:100%;padding:14px;margin-top:14px;border:0;border-radius:14px;backg
     <div id="marginText">Gross Margin: 0%</div>
   </div>
 
-  <div class="card internalOnly">
-    <h2>Presentation Note</h2>
-    <p class="note">
-      <span class="green">Say this:</span><br>
-      “I’ll keep this simple. These categories represent everything it takes to do the job correctly — not just materials and labor.”
-    </p>
-  </div>
-
   <div class="customerOnly">
     <h1>Roofing Project Investment</h1>
     <p class="sub">Prepared for: ______________________________</p>
@@ -146,6 +150,7 @@ button{width:100%;padding:14px;margin-top:14px;border:0;border-radius:14px;backg
 
   <div class="card">
     <h2>Customer-Facing Estimate</h2>
+    <div class="row"><span>Selected Roofing System</span><strong id="selectedSystem">Good – IKO Cambridge</strong></div>
     <div class="row"><span>Preparation & Protection</span><strong id="prepLine">$0</strong></div>
     <div class="row"><span>Roofing System</span><strong id="roofLine">$0</strong></div>
     <div class="row"><span>Flashings & Components</span><strong id="flashLine">$0</strong></div>
@@ -165,11 +170,16 @@ button{width:100%;padding:14px;margin-top:14px;border:0;border-radius:14px;backg
     <p class="note">
       Decking replacement, if required, may be billed separately unless included in the final written agreement.
     </p>
-    <div class="signature">Customer Approval: ______________________________</div>
+
+    <div class="signatureWrap">
+      <strong>Customer Signature / Approval</strong>
+      <div class="signatureLine"></div>
+      <div class="smallLine">Signature</div>
+    </div>
   </div>
 
-  <button class="internalOnly" onclick="setMode('customer')">Switch to Customer / PDF View</button>
-  <button onclick="window.print()">Print / Save as PDF</button>
+  <button class="noPrint" onclick="window.print()">Print / Save as PDF</button>
+
 </div>
 
 <script>
@@ -187,6 +197,23 @@ function money(n){
     currency:'USD',
     maximumFractionDigits:0
   }).format(n || 0);
+}
+
+function getSystemName(){
+  const choice = document.getElementById('systemChoice').value;
+  if(choice === '106') return 'Good – IKO Cambridge';
+  if(choice === '116') return 'Better – IKO Dynasty';
+  if(choice === '145') return 'Best – IKO Nordic';
+  return 'Custom Roofing System';
+}
+
+function updateSystemChoice(){
+  const choice = document.getElementById('systemChoice').value;
+  const shingleInput = document.getElementById('shingleCost');
+  if(choice !== 'custom'){
+    shingleInput.value = choice;
+  }
+  calc();
 }
 
 function calc(){
@@ -223,6 +250,7 @@ function calc(){
   document.getElementById('sellPrice').innerText = money(sellPrice);
   document.getElementById('marginText').innerText = "Gross Margin: " + grossMargin.toFixed(1) + "%";
 
+  document.getElementById('selectedSystem').innerText = getSystemName();
   document.getElementById('prepLine').innerText = money(sellPrice * .13);
   document.getElementById('roofLine').innerText = money(sellPrice * .42);
   document.getElementById('flashLine').innerText = money(sellPrice * .08);
@@ -231,6 +259,8 @@ function calc(){
   document.getElementById('cleanupLine').innerText = money(sellPrice * .05);
   document.getElementById('customerTotal').innerText = money(sellPrice);
 }
+
+document.getElementById('systemChoice').addEventListener('change',updateSystemChoice);
 
 document.querySelectorAll('input,select').forEach(el=>{
   el.addEventListener('input',calc);
