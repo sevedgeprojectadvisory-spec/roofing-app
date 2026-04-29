@@ -3,58 +3,201 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Roofing Pricing App</title>
+<title>Roofing Pricing App V2</title>
 <style>
-body { font-family: Arial; padding: 20px; background:#f5f5f5;}
-.container { max-width: 600px; margin:auto; background:white; padding:20px; border-radius:10px;}
-input { width:100%; padding:8px; margin:5px 0;}
-h2 { margin-top:20px;}
-.total { font-size:24px; font-weight:bold; margin-top:20px;}
+body{font-family:Arial,sans-serif;background:#f4f7f4;margin:0;padding:16px;color:#111}
+.app{max-width:760px;margin:auto;background:#fff;border-radius:18px;padding:18px;box-shadow:0 4px 18px rgba(0,0,0,.08)}
+h1{margin:0;color:#123d22}
+.sub{color:#555;margin-top:5px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+label{font-size:13px;font-weight:bold;margin-top:10px;display:block}
+input,select{width:100%;padding:10px;border:1px solid #ccc;border-radius:10px;font-size:16px;box-sizing:border-box}
+.card{background:#f8faf8;border:1px solid #dfe8df;border-radius:14px;padding:14px;margin-top:14px}
+.total{background:#123d22;color:white;border-radius:16px;padding:18px;margin-top:18px;text-align:center}
+.total .big{font-size:34px;font-weight:bold}
+.row{display:flex;justify-content:space-between;border-bottom:1px solid #ddd;padding:9px 0;font-size:15px}
+.row:last-child{border-bottom:none}
+.note{font-size:13px;color:#555;line-height:1.4}
+button{width:100%;padding:14px;margin-top:14px;border:0;border-radius:14px;background:#123d22;color:white;font-size:16px;font-weight:bold}
+.green{color:#1f7a3a;font-weight:bold}
+@media(max-width:650px){.grid{grid-template-columns:1fr}}
 </style>
 </head>
-
 <body>
-<div class="container">
-<h1>Roofing Pricing App</h1>
+<div class="app">
+  <h1>Roofing Pricing App V2</h1>
+  <p class="sub">Internal pricing tool with complexity bridge + clean customer-facing estimate.</p>
 
-<h2>Inputs</h2>
-<label>Squares</label>
-<input id="sq" type="number" value="30"/>
+  <div class="card">
+    <h2>Internal Inputs</h2>
 
-<label>Shingle Cost per SQ</label>
-<input id="mat" type="number" value="135"/>
+    <div class="grid">
+      <div>
+        <label>Squares</label>
+        <input id="squares" type="number" value="30">
+      </div>
 
-<label>Labor per SQ</label>
-<input id="lab" type="number" value="120"/>
+      <div>
+        <label>Shingle Cost / SQ</label>
+        <input id="shingleCost" type="number" value="135">
+      </div>
 
-<label>Extras (dump, delivery, misc)</label>
-<input id="extra" type="number" value="1000"/>
+      <div>
+        <label>Base Labor / SQ</label>
+        <input id="laborCost" type="number" value="120">
+      </div>
 
-<label>Markup %</label>
-<input id="markup" type="number" value="67"/>
+      <div>
+        <label>Accessories / SQ</label>
+        <input id="accessories" type="number" value="55">
+      </div>
 
-<h2>Result</h2>
-<div id="result" class="total">$0</div>
+      <div>
+        <label>Layers</label>
+        <select id="layers">
+          <option value="1">1 Layer</option>
+          <option value="2">2 Layers</option>
+          <option value="3">3 Layers</option>
+        </select>
+      </div>
 
+      <div>
+        <label>Complexity Bridge</label>
+        <select id="complexity">
+          <option value="0">Simple +$0/SQ</option>
+          <option value="12">Moderate +$12/SQ</option>
+          <option value="25">Complex +$25/SQ</option>
+          <option value="35">Very Complex +$35/SQ</option>
+        </select>
+      </div>
+
+      <div>
+        <label>Delivery / Pallet</label>
+        <input id="delivery" type="number" value="300">
+      </div>
+
+      <div>
+        <label>Misc / Small Materials</label>
+        <input id="misc" type="number" value="250">
+      </div>
+
+      <div>
+        <label>Markup %</label>
+        <input id="markup" type="number" value="67">
+      </div>
+
+      <div>
+        <label>Dumpster Rule</label>
+        <input id="dumpRule" type="number" value="100">
+      </div>
+    </div>
+
+    <p class="note">
+      Dumpster formula: <b>$100 per 10 squares per layer</b>.  
+      Complexity is its own internal box, then gets absorbed into customer-facing labor.
+    </p>
+  </div>
+
+  <div class="card">
+    <h2>Internal Cost Summary</h2>
+    <div class="row"><span>Shingles</span><strong id="matOut">$0</strong></div>
+    <div class="row"><span>Base Labor</span><strong id="laborOut">$0</strong></div>
+    <div class="row"><span>Complexity Adjustment</span><strong id="complexityOut">$0</strong></div>
+    <div class="row"><span>Accessories</span><strong id="accessoryOut">$0</strong></div>
+    <div class="row"><span>Dumpster / Trash</span><strong id="dumpOut">$0</strong></div>
+    <div class="row"><span>Delivery / Pallet</span><strong id="deliveryOut">$0</strong></div>
+    <div class="row"><span>Misc / Small Materials</span><strong id="miscOut">$0</strong></div>
+    <div class="row"><span><b>True Cost</b></span><strong id="trueCost">$0</strong></div>
+  </div>
+
+  <div class="total">
+    <div>Total Project Investment</div>
+    <div class="big" id="sellPrice">$0</div>
+    <div id="marginText">Gross Margin: 0%</div>
+  </div>
+
+  <div class="card">
+    <h2>Customer-Facing Estimate</h2>
+    <p class="note">
+      Show this part to the homeowner. Keep the real cost math above for yourself.
+    </p>
+
+    <div class="row"><span>Preparation & Protection</span><strong id="prepLine">$0</strong></div>
+    <div class="row"><span>Roofing System</span><strong id="roofLine">$0</strong></div>
+    <div class="row"><span>Flashings & Components</span><strong id="flashLine">$0</strong></div>
+    <div class="row"><span>Labor & Installation</span><strong id="laborLine">$0</strong></div>
+    <div class="row"><span>Project Management & System Assurance</span><strong id="manageLine">$0</strong></div>
+    <div class="row"><span>Disposal & Cleanup</span><strong id="cleanupLine">$0</strong></div>
+  </div>
+
+  <div class="card">
+    <h2>Presentation Line</h2>
+    <p class="note">
+      <span class="green">Say this:</span><br>
+      “I’ll keep this simple. These categories represent everything it takes to do the job correctly — not just materials and labor.”
+    </p>
+  </div>
+
+  <button onclick="window.print()">Print / Save as PDF</button>
 </div>
 
 <script>
-function calc(){
-let sq = parseFloat(document.getElementById("sq").value)||0;
-let mat = parseFloat(document.getElementById("mat").value)||0;
-let lab = parseFloat(document.getElementById("lab").value)||0;
-let extra = parseFloat(document.getElementById("extra").value)||0;
-let markup = parseFloat(document.getElementById("markup").value)||0;
-
-let cost = (sq*mat)+(sq*lab)+extra;
-let sell = cost*(1+markup/100);
-
-document.getElementById("result").innerText = "$"+Math.round(sell);
+function money(n){
+  return new Intl.NumberFormat('en-US',{
+    style:'currency',
+    currency:'USD',
+    maximumFractionDigits:0
+  }).format(n || 0);
 }
 
-document.querySelectorAll("input").forEach(i=>i.addEventListener("input",calc));
+function calc(){
+  const sq = Number(document.getElementById('squares').value) || 0;
+  const shingle = Number(document.getElementById('shingleCost').value) || 0;
+  const labor = Number(document.getElementById('laborCost').value) || 0;
+  const acc = Number(document.getElementById('accessories').value) || 0;
+  const layers = Number(document.getElementById('layers').value) || 1;
+  const complexity = Number(document.getElementById('complexity').value) || 0;
+  const delivery = Number(document.getElementById('delivery').value) || 0;
+  const misc = Number(document.getElementById('misc').value) || 0;
+  const markup = Number(document.getElementById('markup').value) || 0;
+  const dumpRule = Number(document.getElementById('dumpRule').value) || 100;
+
+  const materialCost = sq * shingle;
+  const laborCost = sq * labor;
+  const complexityCost = sq * complexity;
+  const accessoryCost = sq * acc;
+  const dumpsterCost = (sq / 10) * dumpRule * layers;
+
+  const trueCost = materialCost + laborCost + complexityCost + accessoryCost + dumpsterCost + delivery + misc;
+  const sellPrice = trueCost * (1 + markup / 100);
+  const grossMargin = sellPrice > 0 ? ((sellPrice - trueCost) / sellPrice) * 100 : 0;
+
+  document.getElementById('matOut').innerText = money(materialCost);
+  document.getElementById('laborOut').innerText = money(laborCost);
+  document.getElementById('complexityOut').innerText = money(complexityCost);
+  document.getElementById('accessoryOut').innerText = money(accessoryCost);
+  document.getElementById('dumpOut').innerText = money(dumpsterCost);
+  document.getElementById('deliveryOut').innerText = money(delivery);
+  document.getElementById('miscOut').innerText = money(misc);
+  document.getElementById('trueCost').innerText = money(trueCost);
+
+  document.getElementById('sellPrice').innerText = money(sellPrice);
+  document.getElementById('marginText').innerText = "Gross Margin: " + grossMargin.toFixed(1) + "%";
+
+  document.getElementById('prepLine').innerText = money(sellPrice * .13);
+  document.getElementById('roofLine').innerText = money(sellPrice * .42);
+  document.getElementById('flashLine').innerText = money(sellPrice * .08);
+  document.getElementById('laborLine').innerText = money(sellPrice * .25);
+  document.getElementById('manageLine').innerText = money(sellPrice * .07);
+  document.getElementById('cleanupLine').innerText = money(sellPrice * .05);
+}
+
+document.querySelectorAll('input,select').forEach(el=>{
+  el.addEventListener('input',calc);
+  el.addEventListener('change',calc);
+});
+
 calc();
 </script>
-
 </body>
 </html>
