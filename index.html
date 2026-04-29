@@ -3,10 +3,10 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Roofing Pricing App V2</title>
+<title>Roofing Pricing App V3</title>
 <style>
 body{font-family:Arial,sans-serif;background:#f4f7f4;margin:0;padding:16px;color:#111}
-.app{max-width:760px;margin:auto;background:#fff;border-radius:18px;padding:18px;box-shadow:0 4px 18px rgba(0,0,0,.08)}
+.app{max-width:820px;margin:auto;background:#fff;border-radius:18px;padding:18px;box-shadow:0 4px 18px rgba(0,0,0,.08)}
 h1{margin:0;color:#123d22}
 .sub{color:#555;margin-top:5px}
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
@@ -19,16 +19,34 @@ input,select{width:100%;padding:10px;border:1px solid #ccc;border-radius:10px;fo
 .row:last-child{border-bottom:none}
 .note{font-size:13px;color:#555;line-height:1.4}
 button{width:100%;padding:14px;margin-top:14px;border:0;border-radius:14px;background:#123d22;color:white;font-size:16px;font-weight:bold}
+.secondary{background:#e8f1e8;color:#123d22;border:1px solid #bfd4bf}
 .green{color:#1f7a3a;font-weight:bold}
-@media(max-width:650px){.grid{grid-template-columns:1fr}}
+.modebar{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:15px}
+.customerOnly{display:none}
+.customer-mode .internalOnly{display:none!important}
+.customer-mode .customerOnly{display:block}
+.customer-mode .app{box-shadow:none;border-radius:0}
+.signature{margin-top:35px;border-top:1px solid #333;padding-top:10px}
+@media(max-width:650px){.grid,.modebar{grid-template-columns:1fr}}
+@media print{
+  body{background:white;padding:0}
+  .app{max-width:none;box-shadow:none;border-radius:0}
+  .internalOnly,.modebar,button{display:none!important}
+  .customerOnly{display:block!important}
+}
 </style>
 </head>
 <body>
 <div class="app">
-  <h1>Roofing Pricing App V2</h1>
-  <p class="sub">Internal pricing tool with complexity bridge + clean customer-facing estimate.</p>
+  <h1>Roofing Pricing App V3</h1>
+  <p class="sub internalOnly">Internal pricing tool with customer-safe PDF view.</p>
 
-  <div class="card">
+  <div class="modebar internalOnly">
+    <button onclick="setMode('internal')">Internal View</button>
+    <button class="secondary" onclick="setMode('customer')">Customer / PDF View</button>
+  </div>
+
+  <div class="card internalOnly">
     <h2>Internal Inputs</h2>
 
     <div class="grid">
@@ -91,14 +109,9 @@ button{width:100%;padding:14px;margin-top:14px;border:0;border-radius:14px;backg
         <input id="dumpRule" type="number" value="100">
       </div>
     </div>
-
-    <p class="note">
-      Dumpster formula: <b>$100 per 10 squares per layer</b>.  
-      Complexity is its own internal box, then gets absorbed into customer-facing labor.
-    </p>
   </div>
 
-  <div class="card">
+  <div class="card internalOnly">
     <h2>Internal Cost Summary</h2>
     <div class="row"><span>Shingles</span><strong id="matOut">$0</strong></div>
     <div class="row"><span>Base Labor</span><strong id="laborOut">$0</strong></div>
@@ -110,38 +123,64 @@ button{width:100%;padding:14px;margin-top:14px;border:0;border-radius:14px;backg
     <div class="row"><span><b>True Cost</b></span><strong id="trueCost">$0</strong></div>
   </div>
 
-  <div class="total">
+  <div class="total internalOnly">
     <div>Total Project Investment</div>
     <div class="big" id="sellPrice">$0</div>
     <div id="marginText">Gross Margin: 0%</div>
   </div>
 
-  <div class="card">
-    <h2>Customer-Facing Estimate</h2>
-    <p class="note">
-      Show this part to the homeowner. Keep the real cost math above for yourself.
-    </p>
-
-    <div class="row"><span>Preparation & Protection</span><strong id="prepLine">$0</strong></div>
-    <div class="row"><span>Roofing System</span><strong id="roofLine">$0</strong></div>
-    <div class="row"><span>Flashings & Components</span><strong id="flashLine">$0</strong></div>
-    <div class="row"><span>Labor & Installation</span><strong id="laborLine">$0</strong></div>
-    <div class="row"><span>Project Management & System Assurance</span><strong id="manageLine">$0</strong></div>
-    <div class="row"><span>Disposal & Cleanup</span><strong id="cleanupLine">$0</strong></div>
-  </div>
-
-  <div class="card">
-    <h2>Presentation Line</h2>
+  <div class="card internalOnly">
+    <h2>Presentation Note</h2>
     <p class="note">
       <span class="green">Say this:</span><br>
       “I’ll keep this simple. These categories represent everything it takes to do the job correctly — not just materials and labor.”
     </p>
   </div>
 
+  <div class="customerOnly">
+    <h1>Roofing Project Investment</h1>
+    <p class="sub">Prepared for: ______________________________</p>
+    <p class="sub">Property: ______________________________</p>
+    <p class="sub">Date: ______________________________</p>
+  </div>
+
+  <div class="card">
+    <h2>Customer-Facing Estimate</h2>
+    <div class="row"><span>Preparation & Protection</span><strong id="prepLine">$0</strong></div>
+    <div class="row"><span>Roofing System</span><strong id="roofLine">$0</strong></div>
+    <div class="row"><span>Flashings & Components</span><strong id="flashLine">$0</strong></div>
+    <div class="row"><span>Labor & Installation</span><strong id="laborLine">$0</strong></div>
+    <div class="row"><span>Project Management & System Assurance</span><strong id="manageLine">$0</strong></div>
+    <div class="row"><span>Disposal & Cleanup</span><strong id="cleanupLine">$0</strong></div>
+    <div class="row"><span><b>Total Project Investment</b></span><strong id="customerTotal">$0</strong></div>
+  </div>
+
+  <div class="card customerOnly">
+    <h2>Project Notes</h2>
+    <p class="note">
+      Pricing reflects a complete roofing system approach, including materials, labor, coordination,
+      disposal, cleanup, and project execution. Final scope may be adjusted based on field conditions,
+      material availability, and confirmed project details.
+    </p>
+    <p class="note">
+      Decking replacement, if required, may be billed separately unless included in the final written agreement.
+    </p>
+    <div class="signature">Customer Approval: ______________________________</div>
+  </div>
+
+  <button class="internalOnly" onclick="setMode('customer')">Switch to Customer / PDF View</button>
   <button onclick="window.print()">Print / Save as PDF</button>
 </div>
 
 <script>
+function setMode(mode){
+  if(mode === 'customer'){
+    document.body.classList.add('customer-mode');
+  } else {
+    document.body.classList.remove('customer-mode');
+  }
+}
+
 function money(n){
   return new Intl.NumberFormat('en-US',{
     style:'currency',
@@ -190,6 +229,7 @@ function calc(){
   document.getElementById('laborLine').innerText = money(sellPrice * .25);
   document.getElementById('manageLine').innerText = money(sellPrice * .07);
   document.getElementById('cleanupLine').innerText = money(sellPrice * .05);
+  document.getElementById('customerTotal').innerText = money(sellPrice);
 }
 
 document.querySelectorAll('input,select').forEach(el=>{
